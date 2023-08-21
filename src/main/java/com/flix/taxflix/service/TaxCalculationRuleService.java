@@ -12,7 +12,6 @@ import com.flix.taxflix.repository.TaxCalculationRuleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,53 +28,35 @@ public class TaxCalculationRuleService {
         List<CalculationItemResponse> calculationItemResponses = calculationRequestDTO
                 .getCalculationItemRequests().stream().map(this::getCalculationItemResponse).collect(Collectors.toList());
 
-        Result result = getTotalSum(calculationItemResponses);
+        Double totalItemPrice = calculationItemResponses.stream()
+                .mapToDouble(CalculationItemResponse::getTotalItemPrice)
+                .sum();
+
+        Double totalItemTax = calculationItemResponses.stream()
+                .mapToDouble(CalculationItemResponse::getItemTaxParentage)
+                .sum();
+
+        Double totalItemNet = calculationItemResponses.stream()
+                .mapToDouble(CalculationItemResponse::getItemNetPrice)
+                .sum();
 
         CalculationItem calculationItem = this.calculationItemRepository.save(CalculationItem.builder()
-                .totalItemsTaxParentage(result.totalItemTax)
-                .totalNetItemsPrice(result.totalItemNet).
-                totalItemsGrossPrice(result.totalItemTax).build());
+                .totalItemsTaxParentage(totalItemTax)
+                .totalNetItemsPrice(totalItemNet).
+                totalItemsGrossPrice(totalItemTax).build());
 
         return CalculationResponseDTO.builder().calculationItemResponses(calculationItemResponses)
-                .totalItemsGrossPrice(result.totalItemPrice)
-                .TotalItemsTaxParentage(result.totalItemTax)
-                .totalNetItemsPrice(result.totalItemNet)
+                .totalItemsGrossPrice(totalItemPrice)
+                .TotalItemsTaxParentage(totalItemTax)
+                .totalNetItemsPrice(totalItemNet)
                 .calculationId(calculationItem.getId()).build();
     }
 
-    private static Result getTotalSum(List<CalculationItemResponse> calculationItemResponses) {
-        Double totalItemPrice = calculationItemResponses.stream()
-                .map(CalculationItemResponse::getTotalItemPrice).mapToDouble(x -> x).sum();
-
-        Double totalItemTax = calculationItemResponses.stream()
-                .map(CalculationItemResponse::getItemTaxParentage).mapToDouble(x -> x).sum();
-
-        Double totalItemNet = calculationItemResponses.stream()
-                .map(CalculationItemResponse::getItemNetPrice).mapToDouble(x -> x).sum();
-        return new Result(totalItemPrice, totalItemTax, totalItemNet);
-    }
-
-    private static class Result {
-        public final Double totalItemPrice;
-        public final Double totalItemTax;
-        public final Double totalItemNet;
-
-        public Result(Double totalItemPrice, Double totalItemTax, Double totalItemNet) {
-            this.totalItemPrice = totalItemPrice;
-            this.totalItemTax = totalItemTax;
-            this.totalItemNet = totalItemNet;
-        }
-    }
-
     private CalculationItemResponse getCalculationItemResponse(CalculationItemRequest calculationItemRequest) {
-        List<TaxCalculationRule> taxCalculationRuleList =
-                this.taxCalculationRuleRepository
-                        .findTaxCalculationRuleBySourceCountryAndDistenationCountryOrderByPriorityDesc(calculationItemRequest.getSourceCountry(),
-                                calculationItemRequest.getDestinationCountry());
-
         TaxCalculationRule taxCalculationRule =
-                taxCalculationRuleList
-                        .stream().max(Comparator.comparing(TaxCalculationRule::getPriority)).get();
+                this.taxCalculationRuleRepository
+                        .findFirsBySourceCountryAndDistenationCountryOrderByPriorityDesc(calculationItemRequest.getSourceCountry(),
+                                calculationItemRequest.getDestinationCountry());
 
         Float taxValue = calculationItemRequest.getDistance().compareTo(taxCalculationRule.getThreshold()) <= 0 ?
                 taxCalculationRule.getShortTaxValueParentage() : taxCalculationRule.getLongTaxValueParentage();
