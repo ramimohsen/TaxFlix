@@ -32,13 +32,14 @@ public class TaxCalculationRuleService {
         Result result = getTotalSum(calculationItemResponses);
 
         CalculationItem calculationItem = this.calculationItemRepository.save(CalculationItem.builder()
-                .TotalItemsTaxParentage(result.totalItemTax)
-                .totalNetItemsPrice(result.totalItemPrice).
-                totalNetItemsPrice(result.totalItemNet).build());
+                .totalItemsTaxParentage(result.totalItemTax)
+                .totalNetItemsPrice(result.totalItemNet).
+                totalItemsGrossPrice(result.totalItemTax).build());
 
         return CalculationResponseDTO.builder().calculationItemResponses(calculationItemResponses)
                 .totalItemsGrossPrice(result.totalItemPrice)
                 .TotalItemsTaxParentage(result.totalItemTax)
+                .totalNetItemsPrice(result.totalItemNet)
                 .calculationId(calculationItem.getId()).build();
     }
 
@@ -76,11 +77,11 @@ public class TaxCalculationRuleService {
                 taxCalculationRuleList
                         .stream().max(Comparator.comparing(TaxCalculationRule::getPriority)).get();
 
-        float taxValue = calculationItemRequest.getDistance().compareTo(taxCalculationRule.getThreshold()) <= 0 ?
+        Float taxValue = calculationItemRequest.getDistance().compareTo(taxCalculationRule.getThreshold()) <= 0 ?
                 taxCalculationRule.getShortTaxValueParentage() : taxCalculationRule.getLongTaxValueParentage();
 
         Double totalPrice = calculationItemRequest.getTotalItemNetPrice() +
-                (calculationItemRequest.getTotalItemNetPrice() * (taxValue / 100));
+                (calculationItemRequest.getTotalItemNetPrice() * (taxValue.doubleValue() / 100));
 
         return CalculationItemResponse.builder()
                 .sourceCountry(calculationItemRequest.getSourceCountry())

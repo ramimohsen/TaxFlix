@@ -2,24 +2,25 @@ package com.flix.taxflix.dto;
 
 
 import com.flix.taxflix.enums.Country;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 import javax.validation.constraints.NotNull;
 
 @Builder
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class CalculationItemRequest {
 
     @NotNull
-    private final Country sourceCountry;
+    private Country sourceCountry;
 
     @NotNull
-    private final Country destinationCountry;
+    private Country destinationCountry;
 
     @NotNull
-    private final Double totalItemNetPrice;
+    private Double totalItemNetPrice;
 
     @NotNull
-    private final Float distance;
+    private Float distance;
 }

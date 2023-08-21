@@ -23,8 +23,8 @@ public class CalculationItem {
     private  Double totalNetItemsPrice;
 
     @Column(nullable = false)
-    private  Double TotalItemsTaxParentage;
+    private  Double totalItemsTaxParentage;
 
     @Column(nullable = false)
-    private  Double TotalItemsGrossPrice;
+    private  Double totalItemsGrossPrice;
 }
