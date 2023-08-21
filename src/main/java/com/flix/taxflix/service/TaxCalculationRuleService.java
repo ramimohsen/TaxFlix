@@ -31,14 +31,15 @@ public class TaxCalculationRuleService {
 
         Result result = getTotalSum(calculationItemResponses);
 
-        this.calculationItemRepository.save(CalculationItem.builder()
+        CalculationItem calculationItem = this.calculationItemRepository.save(CalculationItem.builder()
                 .TotalItemsTaxParentage(result.totalItemTax)
                 .totalNetItemsPrice(result.totalItemPrice).
                 totalNetItemsPrice(result.totalItemNet).build());
 
         return CalculationResponseDTO.builder().calculationItemResponses(calculationItemResponses)
                 .totalItemsGrossPrice(result.totalItemPrice)
-                .TotalItemsTaxParentage(result.totalItemTax).build();
+                .TotalItemsTaxParentage(result.totalItemTax)
+                .calculationId(calculationItem.getId()).build();
     }
 
     private static Result getTotalSum(List<CalculationItemResponse> calculationItemResponses) {
