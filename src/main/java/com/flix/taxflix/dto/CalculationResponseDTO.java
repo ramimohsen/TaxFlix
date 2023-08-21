@@ -1,7 +1,6 @@
 package com.flix.taxflix.dto;
 
 
-import com.flix.taxflix.enums.Country;
 import lombok.Builder;
 import lombok.Data;
 
@@ -15,7 +14,7 @@ public class CalculationResponseDTO {
 
     private final Double totalNetItemsPrice;
 
-    private final Double TotalItemsTaxParentage;
+    private final Double totalItemsTaxParentage;
 
     private final Double totalItemsGrossPrice;
 

@@ -43,11 +43,11 @@ public class TaxCalculationRuleService {
         CalculationItem calculationItem = this.calculationItemRepository.save(CalculationItem.builder()
                 .totalItemsTaxParentage(totalItemTax)
                 .totalNetItemsPrice(totalItemNet).
-                totalItemsGrossPrice(totalItemTax).build());
+                totalItemsGrossPrice(totalItemPrice).build());
 
         return CalculationResponseDTO.builder().calculationItemResponses(calculationItemResponses)
                 .totalItemsGrossPrice(totalItemPrice)
-                .TotalItemsTaxParentage(totalItemTax)
+                .totalItemsTaxParentage(totalItemTax)
                 .totalNetItemsPrice(totalItemNet)
                 .calculationId(calculationItem.getId()).build();
     }
